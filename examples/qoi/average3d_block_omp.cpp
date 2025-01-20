@@ -135,10 +135,12 @@ int main(int argc, char **argv) {
   size_t num_block_2 = (dimy - 1) / block_size + 1;
   size_t num_block_3 = (dimz - 1) / block_size + 1;
   size_t num_blocks = num_block_1*num_block_2*num_block_3;
+  std::cout<<"Number of blocks: "<<num_blocks<<std::endl;
   int nThreads = 1;
   size_t total_compressed_size = 0;
-  std::vector<bool> verifications(num_blocks);
-  auto max_err = std::numeric_limits<float>::max();
+  std::vector<bool> verifications;
+  verifications.resize(num_blocks);
+  auto max_err = 0.0;
 
   //float * decData = new float[total_element_num];
 #pragma omp parallel
@@ -217,7 +219,7 @@ int main(int argc, char **argv) {
           std::abs(average_dec - average_ori);
       verifications[block_id] = (err<=tol);
       #pragma omp critical
-      max_err = std::min(max_err,err);
+      max_err = std::max(max_err,err);
      // std::cout << "real error of QoI (average) = " << err << "\n";
       //if (err < tol)
         //std::cout << "********** Successful **********\n";
