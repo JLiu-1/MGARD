@@ -1,5 +1,9 @@
 # Data Compression Preserving Quantity-of-Interest (QoI) using MGARD
 
+Added: average3d and average3d_block (just using the latter is good).
+
+Run average3d_block without arguments for instructions.
+
 First, build and install MGARD. Then, build the MGARD-QoI example as follows:
 
 ```

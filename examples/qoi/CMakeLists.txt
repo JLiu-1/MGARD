@@ -10,5 +10,10 @@ add_definitions(-DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX)
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -Wfatal-errors -Wall -Wextra")
 
 add_executable(average average.cpp)
+add_executable(average3d average3d.cpp)
+add_executable(average3d_block average3d_block.cpp)
+
 
 target_link_libraries(average mgard::mgard)
+target_link_libraries(average3d mgard::mgard)
+target_link_libraries(average3d_block mgard::mgard)
