@@ -105,6 +105,7 @@ int main(int argc, char **argv) {
   char *outPath = nullptr;
   size_t dimx, dimy, dimz;
   size_t block_size;
+  int num_threads = 4;
 
   if (argc == 8 or argc == 9) {
     inPath = argv[1];
@@ -115,14 +116,14 @@ int main(int argc, char **argv) {
     tol = atof(argv[6]);
     outPath = argv[7];
     if(argc == 9)
-      omp_set_num_threads(atoi(argv[8]));
+      num_threads=atoi(argv[8]);
   }
   else{
-    std::cout<<"Usage: average3d_block inputfile dimx dimy dimz block_size qoi_tolerance outputfile"<<std::endl;
+    std::cout<<"Usage: average3d_block inputfile dimx dimy dimz block_size qoi_tolerance outputfile [optional]num_threads"<<std::endl;
     std::cout<<"Wrong arguments"<<std::endl;
     exit(1);
   }
-
+  omp_set_num_threads(num_threads);
   auto total_element_num = dimx*dimy*dimz;
   float * data = new float[total_element_num];
   readfile<float>(inPath, total_element_num, data);
@@ -249,6 +250,8 @@ int main(int argc, char **argv) {
 
   writefile<float>(outPath, data, total_element_num);
   delete []data;
+  return 0;
 #endif
+  std::cout<<"OpenMP not found. Please load OpenMP or use sequantial version."<<std::endl;
   return 0;
 }
