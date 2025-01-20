@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
   size_t total_compressed_size = 0;
   std::vector<bool> verifications;
   verifications.resize(num_blocks);
-  auto max_err = 0.0;
+  float max_err = 0.0;
 
   //float * decData = new float[total_element_num];
 #pragma omp parallel
