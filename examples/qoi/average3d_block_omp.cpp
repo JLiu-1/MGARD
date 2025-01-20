@@ -78,7 +78,7 @@ public:
     if (upper_right.at(0) > n || upper_right.at(1) > m || upper_right.at(2) > p) {
       throw std::invalid_argument("region isn't contained in domain");
     }
-    float total = 0;
+    double total = 0;
     std::size_t count = 0;
     for (std::size_t i = lower_left.at(0); i < upper_right.at(0); ++i) {
       for (std::size_t j = lower_left.at(1); j < upper_right.at(1); ++j) {
@@ -89,7 +89,7 @@ public:
 	}
       }
     }
-    return total / count;
+    return (float)(total / count);
   }
 
 private:
