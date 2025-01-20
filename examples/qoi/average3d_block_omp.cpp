@@ -243,10 +243,10 @@ int main(int argc, char **argv) {
     }
   }
   if(succeessful){
-    std::cout<<"QoI error bounded successfully.";
+    std::cout<<"QoI error bounded successfully."<<std::endl;
   }
   else{
-    std::cout<<"Failed to bound QoI error.";
+    std::cout<<"Failed to bound QoI error."<<std::endl;
   }
   std::cout<<"Maximum QoI error: "<<max_err<<std::endl;
 
