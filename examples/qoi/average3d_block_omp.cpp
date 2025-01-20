@@ -254,6 +254,6 @@ int main(int argc, char **argv) {
   delete []data;
   return 0;
 #endif
-  std::cout<<"OpenMP not found. Please load OpenMP or use sequantial version."<<std::endl;
+  std::cout<<"OpenMP not found. Please load OpenMP or use sequential version."<<std::endl;
   return 0;
 }
