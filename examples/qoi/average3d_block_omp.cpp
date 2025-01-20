@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
       num_threads=atoi(argv[8]);
   }
   else{
-    std::cout<<"Usage: average3d_block inputfile dimx dimy dimz block_size qoi_tolerance outputfile [optional]num_threads"<<std::endl;
+    std::cout<<"Usage: average3d_block_omp inputfile dimx dimy dimz block_size qoi_tolerance outputfile [optional]num_threads"<<std::endl;
     std::cout<<"Wrong arguments"<<std::endl;
     exit(1);
   }
