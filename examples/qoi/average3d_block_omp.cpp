@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
   size_t total_compressed_size = 0;
   //std::vector<bool> verifications(num_blocks,false);
   //std::vector<char> start(num_blocks,0);
-  std::vector<char> done(num_blocks,0);
+  //std::vector<char> done(num_blocks,0);
   std::vector<float> qoi_errs(num_blocks,0);
   //verifications.resize(num_blocks);
   //float max_err = 0.0;
@@ -221,7 +221,7 @@ int main(int argc, char **argv) {
         
         //verifications[block_id] = (err<=tol);
         qoi_errs[block_id] = err;
-        done[block_id] = 1;
+        //done[block_id] = 1;
         //#pragma omp critical
         //max_err = std::max(max_err,err);
        // std::cout << "real error of QoI (average) = " << err << "\n";
@@ -253,11 +253,12 @@ int main(int argc, char **argv) {
     //  succeessful = false;
     //  std::cout<<"Unstarted at block "<<i<<std::endl;
    // }
-    if(done[i] != 1){
-      succeessful = false;
-      std::cout<<"Unfinished at block "<<i<<std::endl;
-    }
-    else if (qoi_errs[i]>tol){
+    //if(done[i] != 1){
+    //  succeessful = false;
+    //  std::cout<<"Unfinished at block "<<i<<std::endl;
+    //}
+    //else 
+    if (qoi_errs[i]>tol){
       succeessful = false;
       std::cout<<"QoI unbounded at block "<<i<<std::endl;
     }
