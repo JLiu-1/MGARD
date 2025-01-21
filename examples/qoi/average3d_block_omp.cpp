@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
     #pragma omp single
       {
         nThreads = omp_get_num_threads();
-        std::printf("nThreads = %d\n", nThreads);
+        std::cout<<"nThreads = "<<nThreads<<std::endl;;
       }
     int tid = omp_get_thread_num();
 
