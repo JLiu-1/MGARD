@@ -138,9 +138,12 @@ int main(int argc, char **argv) {
   std::cout<<"Number of blocks: "<<num_blocks<<std::endl;
   int nThreads = 1;
   size_t total_compressed_size = 0;
-  std::vector<bool> verifications;
-  verifications.resize(num_blocks);
-  float max_err = 0.0;
+  //std::vector<bool> verifications(num_blocks,false);
+  //std::vector<char> start(num_blocks,0);
+  std::vector<char> done(num_blocks,0);
+  std::vector<float> qoi_errs(num_blocks,0);
+  //verifications.resize(num_blocks);
+  //float max_err = 0.0;
 
   //float * decData = new float[total_element_num];
 #pragma omp parallel
@@ -154,77 +157,84 @@ int main(int argc, char **argv) {
     int tid = omp_get_thread_num();
 
     for(size_t block_id = tid; block_id < num_blocks; block_id += nThreads){
-      auto temp = block_id;
-      size_t block_id_x = temp/(num_block_2*num_block_3);
-      temp = temp % (num_block_2*num_block_3);
-      size_t block_id_y = temp/(num_block_3);
-      size_t block_id_z = temp%num_block_3;
-      size_t start_id_x = block_size*block_id_x;
-      size_t start_id_y = block_size*block_id_y;
-      size_t start_id_z = block_size*block_id_z;
-      size_t size_1 = std::min(block_size,dimx-start_id_x);
-      size_t size_2 = std::min(block_size,dimy-start_id_y);
-      size_t size_3 = std::min(block_size,dimz-start_id_z);
-      size_t start_offset = start_id_x*dim0_offset+start_id_y*dim1_offset+start_id_z;
-      size_t n_block_elements = size_1 * size_2 * size_3;
+      //start[block_id]=true;
+     // try{
+        auto temp = block_id;
+        size_t block_id_x = temp/(num_block_2*num_block_3);
+        temp = temp % (num_block_2*num_block_3);
+        size_t block_id_y = temp/(num_block_3);
+        size_t block_id_z = temp%num_block_3;
+        size_t start_id_x = block_size*block_id_x;
+        size_t start_id_y = block_size*block_id_y;
+        size_t start_id_z = block_size*block_id_z;
+        size_t size_1 = std::min(block_size,dimx-start_id_x);
+        size_t size_2 = std::min(block_size,dimy-start_id_y);
+        size_t size_3 = std::min(block_size,dimz-start_id_z);
+        size_t start_offset = start_id_x*dim0_offset+start_id_y*dim1_offset+start_id_z;
+        size_t n_block_elements = size_1 * size_2 * size_3;
 
-      float *const u = static_cast<float *>(std::malloc(n_block_elements * sizeof(*u)));
-      float *p = u;
-      for(size_t ii=0; ii<size_1; ii++){
-          for(size_t jj=0; jj<size_2; jj++){
-              for(size_t kk=0; kk<size_3; kk++){
-                auto offset = start_offset+ii*dim0_offset+jj*dim1_offset+kk;
-                *p++  = *(data+offset);
-              }
-          }
-      }
-
-      std::vector<size_t> w3d = {0, 0, 0, size_1, size_2, size_3};
-      const mgard::TensorMeshHierarchy<3, float> hierarchy({size_1, size_2, size_3});
-      const AverageFunctional3D average({w3d[0], w3d[1], w3d[2]}, {w3d[3], w3d[4], w3d[5]});
-      const mgard::TensorQuantityOfInterest<3, float> Q(hierarchy, average);
-      const float s = 0;
-      float Q_norm = Q.norm(s);
-      //std::cout <<"Block: "<<i<<" "<<j<<" "<<k<<std::endl;
-      //std::cout << "request error bound on QoI (average) = " << tol << "\n";
-      //std::cout << "Q_norm = " << Q_norm << "\n";
-
-      auto average_ori = average(hierarchy, u);
-      //std::cout << "average using original data: " << average_ori
-      //          << std::endl;
-      const float tolerance = tol / Q_norm;
-      const mgard::CompressedDataset<3, float> compressed =
-          mgard::compress(hierarchy, u, s, tolerance);
-      //std::cout << "after compression\n";
-      const mgard::DecompressedDataset<3, float> decompressed =
-          mgard::decompress(compressed);
-      std::free(u);
-      //std::cout << "average using decompressed data: "
-      //          << average(hierarchy, decompressed.data())<< std::endl;
-                //<< ", CR = " << (double)(vx * vy * vz * 4) / (compressed.size()) << std::endl;
-      #pragma omp atomic
-      total_compressed_size+=compressed.size();
-      float const *dp = decompressed.data();
-      for(size_t ii=0; ii<size_1; ii++){
-          for(size_t jj=0; jj<size_2; jj++){
-              for(size_t kk=0; kk<size_3; kk++){
+        float *const u = static_cast<float *>(std::malloc(n_block_elements * sizeof(*u)));
+        float *p = u;
+        for(size_t ii=0; ii<size_1; ii++){
+            for(size_t jj=0; jj<size_2; jj++){
+                for(size_t kk=0; kk<size_3; kk++){
                   auto offset = start_offset+ii*dim0_offset+jj*dim1_offset+kk;
-                  *(data+offset) = *dp++;
-              }
-          }
-      }
- 
-      auto average_dec = average(hierarchy, decompressed.data());
-      float err =
-          std::abs(average_dec - average_ori);
-      verifications[block_id] = (err<=tol);
-      #pragma omp critical
-      max_err = std::max(max_err,err);
-     // std::cout << "real error of QoI (average) = " << err << "\n";
-      //if (err < tol)
-        //std::cout << "********** Successful **********\n";
-      //else
-      //  std::cout << "********** Fail with error preservation **********\n";
+                  *p++  = *(data+offset);
+                }
+            }
+        }
+
+        std::vector<size_t> w3d = {0, 0, 0, size_1, size_2, size_3};
+        const mgard::TensorMeshHierarchy<3, float> hierarchy({size_1, size_2, size_3});
+        const AverageFunctional3D average({w3d[0], w3d[1], w3d[2]}, {w3d[3], w3d[4], w3d[5]});
+        const mgard::TensorQuantityOfInterest<3, float> Q(hierarchy, average);
+        const float s = 0;
+        float Q_norm = Q.norm(s);
+        
+        auto average_ori = average(hierarchy, u);
+        
+        const float tolerance = tol / Q_norm;
+        const mgard::CompressedDataset<3, float> compressed =
+            mgard::compress(hierarchy, u, s, tolerance);
+           
+        const mgard::DecompressedDataset<3, float> decompressed =
+            mgard::decompress(compressed);
+        std::free(u);
+        
+                  //<< ", CR = " << (double)(vx * vy * vz * 4) / (compressed.size()) << std::endl;
+        #pragma omp atomic
+        total_compressed_size+=compressed.size();
+        float const *dp = decompressed.data();
+        for(size_t ii=0; ii<size_1; ii++){
+            for(size_t jj=0; jj<size_2; jj++){
+                for(size_t kk=0; kk<size_3; kk++){
+                    auto offset = start_offset+ii*dim0_offset+jj*dim1_offset+kk;
+                    *(data+offset) = *dp++;
+                }
+            }
+        }
+   
+        auto average_dec = average(hierarchy, decompressed.data());
+        
+        float err =
+            std::abs(average_dec - average_ori);
+        
+        //verifications[block_id] = (err<=tol);
+        qoi_errs[block_id] = err;
+        done[block_id] = 1;
+        //#pragma omp critical
+        //max_err = std::max(max_err,err);
+       // std::cout << "real error of QoI (average) = " << err << "\n";
+        //if (err < tol)
+          //std::cout << "********** Successful **********\n";
+        //else
+        //  std::cout << "********** Fail with error preservation **********\n";
+     // }
+     // catch(const std::exception &exc){
+     //   std::cerr <<block_id<<std::endl;
+     //   std::cerr << exc.what()<<std::endl;
+
+     // }
       
 
     }
@@ -236,8 +246,18 @@ int main(int argc, char **argv) {
   
   std::cout<<"Overall compression ratio: "<< (double)total_element_num*sizeof(float)/total_compressed_size << std::endl;
   bool succeessful = true;
-  for(size_t i=0;i<verifications.size();i++){
-    if(!verifications[i]){
+  float max_err;
+  for(size_t i=0;i<num_blocks;i++){
+    max_err = std::max(max_err,qoi_errs[i]);
+   // if(!start[i]){
+    //  succeessful = false;
+    //  std::cout<<"Unstarted at block "<<i<<std::endl;
+   // }
+    if(done[i] != 1){
+      succeessful = false;
+      std::cout<<"Unfinished at block "<<i<<std::endl;
+    }
+    else if (qoi_errs[i]>tol){
       succeessful = false;
       std::cout<<"QoI unbounded at block "<<i<<std::endl;
     }

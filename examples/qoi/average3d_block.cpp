@@ -176,8 +176,7 @@ int main(int argc, char **argv) {
               const mgard::DecompressedDataset<3, float> decompressed =
                   mgard::decompress(compressed);
              
-              std::cout << "average using decompressed data: "
-                        << average(hierarchy, decompressed.data())<< std::endl;
+              
                         //<< ", CR = " << (double)(vx * vy * vz * 4) / (compressed.size()) << std::endl;
               total_compressed_size+=compressed.size();
               cur_data_pos = data_z_pos;
@@ -194,6 +193,8 @@ int main(int argc, char **argv) {
               }
 
               auto average_dec = average(hierarchy, decompressed.data());
+              std::cout << "average using decompressed data: "
+                        << average_dec<< std::endl;
               float err =
                   std::abs(average_dec - average_ori);
               std::cout << "real error of QoI (average) = " << err << "\n";
