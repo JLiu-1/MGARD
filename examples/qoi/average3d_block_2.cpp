@@ -83,7 +83,7 @@ public:
 
           total += u[m * p * i + p * j + k];
           ++count;
-  }
+	}
       }
     }
     return total / count;
@@ -100,10 +100,9 @@ int main(int argc, char **argv) {
   float tol = 1.0;
   char *inPath = nullptr;
   char *outPath = nullptr;
-  char *compressedPath = nullptr;
   size_t dimx, dimy, dimz;
   size_t block_size;
-  if (argc >= 8) {
+  if (argc == 8) {
     inPath = argv[1];
     dimx = atoi(argv[2]);
     dimy = atoi(argv[3]);
@@ -111,12 +110,9 @@ int main(int argc, char **argv) {
     block_size = atoi(argv[5]);
     tol = atof(argv[6]);
     outPath = argv[7];
-    if(argc >=9)
-        compressedPath = argv[8];
-
   }
   else{
-    std::cout<<"Usage: average3d_block inputfile dimx dimy dimz block_size qoi_tolerance outputfile [optional]compressed file"<<std::endl;
+    std::cout<<"Usage: average3d_block inputfile dimx dimy dimz block_size qoi_tolerance outputfile"<<std::endl;
     std::cout<<"Wrong arguments"<<std::endl;
     exit(1);
   }
@@ -154,10 +150,7 @@ int main(int argc, char **argv) {
   float const *dp = decompressed.data();
   
   std::cout<<"Overall compression ratio: "<< (double)total_element_num*sizeof(float)/total_compressed_size << std::endl;
-  if(compressedPath!=nullptr){
-    std::ofstream outfile(compressedPath, std::ios_base::binary);
-    compressed.write(outfile);
-  }
+
   writefile<float>(outPath, dp, total_element_num);
   delete []data;
   return 0;

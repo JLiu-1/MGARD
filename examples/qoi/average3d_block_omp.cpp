@@ -156,6 +156,12 @@ int main(int argc, char **argv) {
       }
     int tid = omp_get_thread_num();
 
+    const mgard::TensorMeshHierarchy<3, float> hierarchy_global({size_1, size_2, size_3});
+    const AverageFunctional3D average_global({w3d[0], w3d[1], w3d[2]}, {w3d[3], w3d[4], w3d[5]});
+    const mgard::TensorQuantityOfInterest<3, float> Q_global(hierarchy, average);
+    const float s_global = 0;
+    float Q_norm_global = Q.norm(s_global);
+
     for(size_t block_id = tid; block_id < num_blocks; block_id += nThreads){
       //start[block_id]=true;
      // try{
