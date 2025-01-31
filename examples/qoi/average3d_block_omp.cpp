@@ -156,9 +156,9 @@ int main(int argc, char **argv) {
       }
     int tid = omp_get_thread_num();
 
-    const mgard::TensorMeshHierarchy<3, float> hierarchy_global({size_1, size_2, size_3});
-    const AverageFunctional3D average_global({w3d[0], w3d[1], w3d[2]}, {w3d[3], w3d[4], w3d[5]});
-    const mgard::TensorQuantityOfInterest<3, float> Q_global(hierarchy, average);
+    const mgard::TensorMeshHierarchy<3, float> hierarchy_global({block_size, block_size, block_size});
+    const AverageFunctional3D average_global({0, 0, 0}, {block_size,block_size,block_size});
+    const mgard::TensorQuantityOfInterest<3, float> Q_global(hierarchy_global, average_global);
     const float s_global = 0;
     float Q_norm_global = Q.norm(s_global);
 
@@ -192,14 +192,14 @@ int main(int argc, char **argv) {
 
         std::vector<size_t> w3d = {0, 0, 0, size_1, size_2, size_3};
         const mgard::TensorMeshHierarchy<3, float> hierarchy({size_1, size_2, size_3});
-        const AverageFunctional3D average({w3d[0], w3d[1], w3d[2]}, {w3d[3], w3d[4], w3d[5]});
-        const mgard::TensorQuantityOfInterest<3, float> Q(hierarchy, average);
+        //const AverageFunctional3D average({w3d[0], w3d[1], w3d[2]}, {w3d[3], w3d[4], w3d[5]});
+        //const mgard::TensorQuantityOfInterest<3, float> Q(hierarchy, average);
         const float s = 0;
-        float Q_norm = Q.norm(s);
+        //float Q_norm = Q.norm(s);
         
         auto average_ori = average(hierarchy, u);
         
-        const float tolerance = tol / Q_norm;
+        const float tolerance = tol / Q_norm_global;
         const mgard::CompressedDataset<3, float> compressed =
             mgard::compress(hierarchy, u, s, tolerance);
            

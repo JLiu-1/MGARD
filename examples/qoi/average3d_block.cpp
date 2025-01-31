@@ -83,7 +83,7 @@ public:
 
           total += u[m * p * i + p * j + k];
           ++count;
-  }
+        }
       }
     }
     return total / count;
